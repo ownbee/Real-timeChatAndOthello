@@ -4,7 +4,8 @@ import org.omg.CosNaming.NamingContextPackage.*;
 import org.omg.CORBA.*;     // All CORBA applications need these classes.
 import org.omg.PortableServer.*;   
 import org.omg.PortableServer.POA;
-
+import java.util.Scanner;
+import java.util.*;
  
 class ChatCallbackImpl extends ChatCallbackPOA
 {
@@ -54,12 +55,37 @@ public class ChatClient
 	    ChatCallback cref = ChatCallbackHelper.narrow(ref);
 	    
 	    // Application code goes below
+	    System.out.println("Hello and welcome to this fantastic program!\nAvailable commands:\njoin <your prefered nickname> - Create a user\npost <whatever you want to post> - Post to everybody who is online\n ");
 	    boolean quit = false;
+	    String username = "";
 	    while(!quit){
-		
-		
+		Scanner sc = new Scanner(System.in);
+		String prefix = sc.next();
+		prefix = prefix.toLowerCase();
+		if(prefix.equals("join")){
+		    String namerequest = sc.next();
+		    if(chatImpl.join(cref, namerequest)){
+			username = namerequest;
+		    }
+		}
+		else if(prefix.equals("leave")){
+		    chatImpl.leave(cref);
+		}
+		else if(prefix.equals("list")){
+		    chatImpl.list(cref);
+		}
+		else if(prefix.equals("post")){
+		    chatImpl.say(cref, sc.nextLine());
+		    //System.out.println(sc.nextLine());
+		}
+		else if(prefix.equals("quit")){
+		    chatImpl.leave(cref);
+		    quit = true;
+		}
+		else{
+		    System.out.println("Invalid prefix!");
+		}
 	    }
-	    chatImpl.say(cref, "\n  Hello....");
 	    
 	} catch(Exception e){
 	    System.out.println("ERROR : " + e);

@@ -4,7 +4,8 @@ module ChatApp {
   };
   interface Chat {
     void say(in ChatCallback objref, in string message);
-    void join(in ChatCallback objref, in string name);
-    void leave(in ChatCallback objref, in string name);
+    boolean join(in ChatCallback objref, in string name);
+    void leave(in ChatCallback objref);
+    void list(in ChatCallback objref);
   };
 };
