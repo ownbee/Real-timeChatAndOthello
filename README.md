@@ -1,6 +1,12 @@
 # Real-timeChatAndOthello
 Real-time chat and Othello using Corba
 
+_How to use Makefile:_
+     $ make target             - build the project
+     $ make orbd|client|server - run the individual components
+     $ make clean              - clean temporary files
+     $ make clobber            - wipe everything that is generated
+
  _Here is an example of how you compile the chat system:_
 
        $ make target
