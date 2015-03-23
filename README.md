@@ -2,6 +2,7 @@
 Real-time chat and Othello using Corba
 
 _How to use Makefile:_
+
      	$ make target             - build the project
      	$ make orbd|client|server - run the individual components
      	$ make clean              - clean temporary files
