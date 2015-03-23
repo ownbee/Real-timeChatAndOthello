@@ -1,0 +1,10 @@
+module ChatApp {
+  interface ChatCallback {
+    void callback(in string message);
+  };
+  interface Chat {
+    void say(in ChatCallback objref, in string message);
+    void join(in ChatCallback objref, in string name);
+    void leave(in ChatCallback objref, in string name);
+  };
+};
