@@ -19,6 +19,27 @@ class ChatCallbackImpl extends ChatCallbackPOA
     {
         System.out.println(notification);
     }
+    public void printGameArea(char gameArea[][], String xTeam, String oTeam) {
+	System.out.println("Team 'x': " + xTeam + " Team 'o': " + oTeam);
+	 System.out.println("... 0 . 1 . 2 . 3 . 4 . 5 . 6 . 7 .");
+	for(int col = 0; col < 8; ++col){
+	    System.out.println(". ---------------------------------");
+	    System.out.print(col + " | ");
+	    for(int row = 0; row < 8; ++row){
+		if(gameArea[row][col] != 'x' && gameArea[row][col] != 'o' ){
+		    System.out.print("- | ");
+		}
+		else{
+		    System.out.print(gameArea[row][col]+" | ");
+		}
+	    }
+	    System.out.println();
+	}
+	System.out.println(". ---------------------------------");
+    }
+    public void printWinners(String winners){
+	System.out.println("WINNER(S): " + winners);
+    }
 }
 
 public class ChatClient
@@ -81,6 +102,15 @@ public class ChatClient
 		else if(prefix.equals("quit")){
 		    chatImpl.leave(cref);
 		    quit = true;
+		}
+		else if(prefix.equals("othello")){
+		    chatImpl.othello(cref, sc.next().charAt(0));
+		}
+		else if(prefix.equals("insert")){
+		    chatImpl.insert(cref, sc.nextInt(), sc.nextInt());
+		}
+		else if(prefix.equals("reset")){
+		    chatImpl.reset(cref);
 		}
 		else{
 		    System.out.println("Invalid prefix!");

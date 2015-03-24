@@ -1,5 +1,5 @@
 # Real-timeChatAndOthello
-Real-time chat and Othello using Corba
+## Very simple real-time chat and Othello using Corba
 
 _How to use Makefile:_
 
@@ -8,28 +8,34 @@ _How to use Makefile:_
      	$ make clean              - clean temporary files
      	$ make clobber            - wipe everything that is generated
 
- _Here is an example of how you compile the chat system:_
+ _Do the following steps to start application:_
+ _(1) Compile project:_
+       
+       $ make target 
 
-       $ make target
-       $ make clobber
-       $ make idl
-       $ /usr/bin/idlj -fall Chat.idl
-       $ make c
-       $ /usr/bin/javac ChatClient.java ChatApp/
-       $ *.java
-       $ make s
-       $ /usr/bin/javac ChatServer.java ChatApp/*.java
+_(2) Start the ordb:_
 
        $ make orbd
-       $ orbd -ORBInitialPort 1057 -ORBInitialHost localhost
+       orbd -ORBInitialPort 1057 -ORBInitialHost localhost
 
-_Start the chat server in the second terminal window:_
+_(3) Start the chat server in the second terminal window:_
 
        $ make server
-       $ /usr/bin/java ChatServer -ORBInitialPort 1057 -ORBInitialHost localhost
+       /usr/bin/java ChatServer -ORBInitialPort 1057 -ORBInitialHost localhost
        ChatServer ready and waiting ...
 
-_Finally, start up the chat client in the third window:_
+_(4) Finally, start up the chat client in the third window:_
+_(And maybe a few more if you want to test it alone)_
 
        $ make client
-       $ /usr/bin/java ChatClient -ORBInitialPort 1057 -ORBInitialHost localhost
+       /usr/bin/java ChatClient -ORBInitialPort 1057 -ORBInitialHost localhost
+
+_Commands ingame:_
+
+       join <username>  - join chat and all
+       post <message> 	- write to anyone online
+       leave 		- leave chat or othello
+       othello <color>	- o = team o, x = team x
+       insert x y	- x,y => coorinates to place mark
+
+Node: To win othello, you have to get 4 in a row...

@@ -7,47 +7,138 @@ import org.omg.PortableServer.POA;
 import java.util.*;
 
 class Othello{
-    private Vector<Vector<Character>> gameArea = new Vector<Vector<Character>>(8);
+    private int size = 8;
+    private char gameArea[][] = new char[size][size];
     private Map players = new Hashtable();
     public Othello(){
 	;
     } 
-    public String Join(String username, char color){
+    public char[][] getGameArea(){
+	return gameArea;
+    }
+    public Character getTeam(String username){
+	return (Character)players.get(username);
+    }
+    public Map getAllPlayers(){
+	return players;
+    }
+    public String getXPlayers(){
+	StringBuilder stringBuilder = new StringBuilder();
+	Set<String> keys = players.keySet();
+	for(String key: keys){
+	    if(players.get(key) == 'x'){
+		stringBuilder.append(key + " ");
+	    }
+	}
+	return stringBuilder.toString();
+    }
+    public String getOPlayers(){
+	StringBuilder stringBuilder = new StringBuilder();
+	Set<String> keys = players.keySet();
+	for(String key: keys){
+	    if(players.get(key) == 'o'){
+		stringBuilder.append(key + " ");
+	    }
+	}
+	return stringBuilder.toString();
+    }
+    
+    public Integer join(String username, char color){
 	if(players.containsKey(username)){
-	    return "You're aleady playing!";
+	    return 1;
 	}
 	
-	if(color != 'x' || color != 'o'){
-	    return "Choose between color 'x' or 'o'";
+	if(color != 'x' && color != 'o'){
+	    return 2;
 	}
 	players.put(username, color);
-	return "";
+	return 0;
     }
-    public Boolean Leave(String username){
+    public Boolean leave(String username){
 	if(players.containsKey(username)){
 	    players.remove(username);
 	    return true;
 	}
 	return false;
     }
-    public String Insert(String username, Integer x, Integer y){
-	if(!players.containsKey(username)){
-	    return "You are not part of the game!";
+    public Boolean inGame(String username){
+	if(players.containsKey(username)){
+	    return true;
 	}
-	if(x > 8 || y > 8 || x < 0 || y < 0){
-	    return "Out of game area!";
-	}
-	if(gameArea.get(x).get(y) == 'x' || gameArea.get(x).get(y) == 'o'){
-	    return "Position already taken!";
-	}
-	gameArea.get(x).add(y, players.get(username));
-	return "";
+	return false;
     }
-    private Boolean Check(Integer x, Integer y){
-	return true;
+    public Integer insert(String username, int x, int y){
+	if(!inGame(username)){
+	    return 1;
+	}
+	if(x > size-1 || y > size-1 || x < 0 || y < 0){
+	    return 2; 
+	}
+	if(gameArea[x][y] == 'x' || gameArea[x][y] == 'o'){
+	    return 3;
+	}
+	gameArea[x][y] = (Character)players.get(username);
+	return 0;
     }
-    public void Reset(){
-	;
+    public Boolean winningMove(String username, int x, int y){
+	// Check all possibilities???!!
+        char color = (char)players.get(username); // Get color
+	int win = 3; //num in row to win (3 = |0,1,2,3| = 4)
+	// TO THE LEFT
+	int array[] = new int[8];  
+	for(int i = 0; i <= win; ++i){
+	    if((x-win)>=0){
+		if(gameArea[x-i][y] == color){ //LEFT
+		    ++array[0];
+		}
+		if((y-win)>=0){
+		    if(gameArea[x-i][y-i] == color){ //UPLEFT
+			++array[1];
+		    }
+		}
+		if((y+win)<size){
+		    if(gameArea[x-i][y+i] == color){ //DOWNLEFT
+			++array[2];
+		    }
+		}
+	    }
+	    if((y-win)>=0){
+	    	if(gameArea[x][y-i] == color){ //UP
+	    	    ++array[3];
+	    	}
+	    }
+	    if((y+win)<size){
+	    	if(gameArea[x][y+i] == color){ //DOWN
+	    	    ++array[4];
+	    	}
+	    }
+	    if((x+win)<size){
+	    	if(gameArea[x+i][y] == color){ //RIGHT
+	    	    ++array[5];
+	    	}
+	    	if((y-win)>=0){
+	    	    if(gameArea[x+i][y-i] == color){ //UPRIGHT
+	    		++array[6];
+	    	    }
+	    	}
+	    	if((y+win)<size){
+	    	    if(gameArea[x+i][y+i] == color){ //DOWNRIGHT
+	    		++array[7];
+	    	    }
+	    	}
+	    }
+	}
+	for(int p = 0; p < 8; ++p){
+	    if(array[p] >= win){
+		++array[p];
+		return true;
+	    }
+	}
+	
+	return false;
+    }
+    public void reset(){
+	gameArea = new char[size][size];
     }
 }
 
@@ -71,7 +162,7 @@ class ChatImpl extends ChatPOA
 {
     private ORB orb;
     private Vector<User<String,ChatCallback>> users = new Vector<User<String,ChatCallback>>();
-
+    private Othello othello = new Othello();
     public void setORB(ORB orb_val) {
         orb = orb_val;
     }
@@ -129,6 +220,13 @@ class ChatImpl extends ChatPOA
 	    objref.callback("You dont have anything to leave");
 	    return;
 	}
+	if(othello.inGame(users.get(userIndex).getl())){
+	    if(othello.leave(users.get(userIndex).getl())){
+		post(objref, users.get(userIndex).getl() + " left othello.");
+		objref.callback("You left othello.");
+		return;
+	    }
+	}
 	post(objref, users.get(userIndex).getl() + " left");
 	objref.callback("Goodbye " + users.get(userIndex).getl());
 	users.remove(userIndex);
@@ -151,9 +249,87 @@ class ChatImpl extends ChatPOA
 	String list = stringBuilder.toString();
 	objref.callback(list);
     }
-    public void play(){
-	;
+    private void updateGameArea(){
+	Set<String> keys = othello.getAllPlayers().keySet();
+	for(String key: keys){ // For all players in othello
+	    for(int i = 0; i < users.size(); ++i){ // For all regisered users 
+		if(users.get(i).getl().equals(key)){ // If two mathces, send new gamearea
+		    users.get(i).getr().printGameArea(othello.getGameArea(),othello.getXPlayers(),othello.getOPlayers());
+		}
+	    }
+	}
     }
+    public void othello(ChatCallback objref, char color){
+	int userIndex = IORlookup(objref);
+	if(userIndex == -1){
+	    objref.callback("Register first!");
+	    return;
+	}
+	int error = othello.join(users.get(userIndex).getl(),color);
+	if(error == 0){
+	    objref.callback("You have successfully joined Othello!");
+	    updateGameArea();
+	}
+	else if(error == 1){
+	    objref.callback("You're aleady playing!");
+	}
+	else if(error == 2){
+	    objref.callback("Choose between color 'x' or 'o'");
+	}
+    }
+    public void insert(ChatCallback objref, int x, int y){
+	int userIndex = IORlookup(objref);
+	if(userIndex == -1){
+	    objref.callback("Register first!");
+	    return;
+	}
+	int error = othello.insert(users.get(userIndex).getl(), x, y);
+	if(error == 0){
+	    objref.callback("Your move: (" + x + "," + y + "), placed." );
+	    post(objref, users.get(userIndex).getl() + "'s move: (" + x + "," + y + ").");
+	}
+	if(error == 1){
+	    objref.callback("You are not part of the game!");
+	    return;
+	}
+	if(error == 2){
+	    objref.callback("Out of game area!");
+	    return;
+	}
+	if(error == 3){
+	    objref.callback("Position already taken!");
+	    return;
+	}
+	if(othello.winningMove(users.get(userIndex).getl(), x, y)){
+	    char color = othello.getTeam(users.get(userIndex).getl());
+	    String winners;
+	    if(color == 'x'){
+		winners = othello.getXPlayers();
+	    }
+	    else{
+		winners = othello.getOPlayers();
+	    }
+	    updateGameArea();
+	    post(objref, "WINNER(S):" + winners);
+	    objref.callback("WINNER(S):" + winners);
+	    othello.reset();
+	    return;
+	}
+	updateGameArea();
+    }
+    public void reset(ChatCallback objref){
+	int userIndex = IORlookup(objref);
+	if(userIndex == -1){
+	    objref.callback("Register first!");
+	    return;
+	}
+	if(othello.inGame(users.get(userIndex).getl())){
+	    othello.reset();
+	    updateGameArea();
+	    post(objref, users.get(userIndex).getl() + " reset game.");
+	    objref.callback("You have made a reset.");
+	}
+    } 
 }
 
 public class ChatServer 

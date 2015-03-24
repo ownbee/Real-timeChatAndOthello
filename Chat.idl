@@ -1,11 +1,16 @@
 module ChatApp {
   interface ChatCallback {
+    typedef char GameArea[8][8];
     void callback(in string message);
+    void printGameArea(in GameArea gameArea, in string xteam, in string oteam);
   };
   interface Chat {
     void say(in ChatCallback objref, in string message);
     boolean join(in ChatCallback objref, in string name);
     void leave(in ChatCallback objref);
     void list(in ChatCallback objref);
+    void othello(in ChatCallback objref, in char color);
+    void insert(in ChatCallback objref, in long x, in long y);
+    void reset(in ChatCallback objref);
   };
 };
