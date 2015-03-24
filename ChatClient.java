@@ -37,9 +37,6 @@ class ChatCallbackImpl extends ChatCallbackPOA
 	}
 	System.out.println(". ---------------------------------");
     }
-    public void printWinners(String winners){
-	System.out.println("WINNER(S): " + winners);
-    }
 }
 
 public class ChatClient
