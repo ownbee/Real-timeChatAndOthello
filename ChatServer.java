@@ -6,17 +6,62 @@ import org.omg.PortableServer.*;
 import org.omg.PortableServer.POA;
 import java.util.*;
 
-class User<L,R> {
-    private L Username;
-    private R UserRef;
-    public User(L Username, R UserRef){
-	this.Username = Username;
-	this.UserRef = UserRef;
+class Othello{
+    private Vector<Vector<Character>> gameArea = new Vector<Vector<Character>>(8);
+    private Map players = new Hashtable();
+    public Othello(){
+	;
+    } 
+    public String Join(String username, char color){
+	if(players.containsKey(username)){
+	    return "You're aleady playing!";
+	}
+	
+	if(color != 'x' || color != 'o'){
+	    return "Choose between color 'x' or 'o'";
+	}
+	players.put(username, color);
+	return "";
     }
-    public L getUsername(){ return Username; }
-    public R getUserRef(){ return UserRef; }
-    public boolean compareUsername(String otherName){
-	if(otherName.equals(this.Username))
+    public Boolean Leave(String username){
+	if(players.containsKey(username)){
+	    players.remove(username);
+	    return true;
+	}
+	return false;
+    }
+    public String Insert(String username, Integer x, Integer y){
+	if(!players.containsKey(username)){
+	    return "You are not part of the game!";
+	}
+	if(x > 8 || y > 8 || x < 0 || y < 0){
+	    return "Out of game area!";
+	}
+	if(gameArea.get(x).get(y) == 'x' || gameArea.get(x).get(y) == 'o'){
+	    return "Position already taken!";
+	}
+	gameArea.get(x).add(y, players.get(username));
+	return "";
+    }
+    private Boolean Check(Integer x, Integer y){
+	return true;
+    }
+    public void Reset(){
+	;
+    }
+}
+
+class User<L,R> {
+    private L l;
+    private R r;
+    public User(L l, R r){
+	this.l = l;
+	this.r = r;
+    }
+    public L getl(){ return l; }
+    public R getr(){ return r; }
+    public boolean comparel(String otherName){
+	if(otherName.equals(this.l))
 	    return true;
 	return false;
     }
@@ -25,14 +70,14 @@ class User<L,R> {
 class ChatImpl extends ChatPOA
 {
     private ORB orb;
-    Vector<User<String,ChatCallback>> users = new Vector<User<String,ChatCallback>>();
+    private Vector<User<String,ChatCallback>> users = new Vector<User<String,ChatCallback>>();
 
     public void setORB(ORB orb_val) {
         orb = orb_val;
     }
     private int IORlookup(ChatCallback objref){
 	for(int i = 0; i < users.size(); ++i){
-	    if(users.get(i).getUserRef().equals(objref)){
+	    if(users.get(i).getr().equals(objref)){
 		return i;
 	    }
 	} 
@@ -46,14 +91,14 @@ class ChatImpl extends ChatPOA
 	    callobj.callback("You have to join first!");
 	    return;
 	}
-	post(callobj, users.get(userIndex).getUsername() + " said:" + msg); // Send to all but sender.
-	callobj.callback(users.get(userIndex).getUsername() + " said:" + msg); // Send to sender.
+	post(callobj, users.get(userIndex).getl() + " said:" + msg); // Send to all but sender.
+	callobj.callback(users.get(userIndex).getl() + " said:" + msg); // Send to sender.
     }
     private void post(ChatCallback callobj, String msg){
 	int userIndex = IORlookup(callobj);
 	for(int i = 0; i < users.size(); ++i){
 	    if(userIndex != i) // If not sender.
-		users.get(i).getUserRef().callback(msg);
+		users.get(i).getr().callback(msg);
 	}
     }
     public boolean join(ChatCallback callobj, String name){
@@ -67,7 +112,7 @@ class ChatImpl extends ChatPOA
 	}
 	
 	for(int i = 0; i < users.size(); ++i){ // Check if username already exists 
-	    if(users.get(i).compareUsername(name)){
+	    if(users.get(i).comparel(name)){
 		callobj.callback("Name already exist!\n");  
 		return false;
 	    }
@@ -84,8 +129,8 @@ class ChatImpl extends ChatPOA
 	    objref.callback("You dont have anything to leave");
 	    return;
 	}
-	post(objref, users.get(userIndex).getUsername() + " left");
-	objref.callback("Goodbye " + users.get(userIndex).getUsername());
+	post(objref, users.get(userIndex).getl() + " left");
+	objref.callback("Goodbye " + users.get(userIndex).getl());
 	users.remove(userIndex);
     }
 
@@ -93,6 +138,7 @@ class ChatImpl extends ChatPOA
 	int userIndex = IORlookup(objref);
 	if(userIndex == -1){
 	    objref.callback("Register first!");
+	    return;
 	}
 	if(users.size() == 0){
 	    return;
@@ -100,10 +146,13 @@ class ChatImpl extends ChatPOA
 	StringBuilder stringBuilder = new StringBuilder();
 	stringBuilder.append("List of registered users:\n");
 	for(int i = 0; i < users.size(); ++i){
-	    stringBuilder.append(users.get(i).getUsername() + "\n");
+	    stringBuilder.append(users.get(i).getl() + "\n");
 	}
 	String list = stringBuilder.toString();
 	objref.callback(list);
+    }
+    public void play(){
+	;
     }
 }
 
