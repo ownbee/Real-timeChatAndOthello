@@ -2,10 +2,10 @@
 chat system. How would a call by the client have looked like if the name server 
 would not have existed?
 
-To easier be able to call functions at another unit.
-First the name server is started, then the server connects to the name server. After that the clients connects to the name server. The name server(ORB) works similar to a DNS, as a machine in the middle. The name server directs all the connection to the right destination. 
+To easier get information about each other without having to manually configure location and information about the hosts in the applications.
+The name server is started, and then the server and clients is connected and requesting information about each other. Then a server and client can send messages between each other. 
 
-The client couldn`t use the server functions so it would have to handle them with some kind of protocol instead, like http. 
+The client would have to store all information about other applications instead of using the nameserver to get the infromation.
 
 
 2. The server in the lab is using the callback function. This is one way of 
@@ -19,6 +19,7 @@ The server just sends the response without caring if the client is ready or not.
 The Polling-model is an alternative to Callback for implementing a asynchronous call in COBRA. Same as callback the server will send response, but the client doesn't have to take the response right away. The client can decide when it will take it. 
 
 
+Testing and implementation:
 Because the program is tested by us writing the commands in the terminal, the testing was done by typeing the different commands we implemented to see they worked as they should.
 The testing was done in stages by implemententing a command and test it so it worked as we wanted. 
 For example the Chat System, we implemented the "join", "post" and "leave" and checked if they worked properly. By checking that 2 with the same name couldn't join and same person can´t join 2 times. Tested so that error messages were shown if some fault arguements were typed in. 
